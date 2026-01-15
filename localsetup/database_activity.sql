@@ -17,3 +17,7 @@ CREATE TABLE IF NOT EXISTS user_activity_logs (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     INDEX idx_user_activity (user_id, created_at)
 );
+
+ALTER TABLE user_games ADD INDEX idx_user_id (user_id);
+ALTER TABLE matches ADD INDEX idx_created_at (created_at);
+ALTER TABLE messages ADD INDEX idx_conversation (sender_id, receiver_id, created_at);

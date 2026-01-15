@@ -30,6 +30,7 @@ class Settings:
     __ALGORITHM: str = "HS256"
     __ACCESS_TOKEN_EXPIRE_DAYS: int = 7
     __JWT_SECRET: str = None
+    # Ajouter activity monitoring durées ici
 
     # CORS
     CORS_ORIGINS: list = [

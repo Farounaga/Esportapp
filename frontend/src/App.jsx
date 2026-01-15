@@ -26,6 +26,7 @@ import Privacy from './pages/Privacy';
 import Legal from './pages/Legal';
 
 function App() {
+  console.log("App is rendering...");
   return (
     <AuthProvider>
       <ToastProvider>

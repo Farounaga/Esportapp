@@ -1,21 +1,22 @@
+
 # 🚀 API FastAPI - Plateforme d'E-Sport Social
 
 API REST complète pour la plateforme sociale gaming avec authentification JWT, matching de joueurs et messagerie.
 
 ## ✨ Fonctionnalités
 
-- 🔐 **Authentification JWT** sécurisée
-- 👤 **Gestion des profils** utilisateurs
-- 🎮 **Catalogue de jeux** et profils gaming
-- 🤝 **Système de matching** intelligent
-- 💬 **Messagerie** entre utilisateurs matchés
-- 📊 **Documentation API** interactive (Swagger/ReDoc)
+* 🔐 **Authentification JWT** sécurisée
+* 👤 **Gestion des profils** utilisateurs
+* 🎮 **Catalogue de jeux** et profils gaming
+* 🤝 **Système de matching** intelligent
+* 💬 **Messagerie** entre utilisateurs matchés
+* 📊 **Documentation API** interactive (Swagger/ReDoc)
 
 ## 📋 Prérequis
 
-- Python 3.8+
-- MySQL 5.7+ ou MariaDB
-- pip (gestionnaire de paquets Python)
+* Python 3.8+
+* MySQL 5.7+ ou MariaDB
+* pip (gestionnaire de paquets Python)
 
 ## ⚡ Installation Rapide
 
@@ -56,73 +57,73 @@ JWT_SECRET=your-secret-key-change-this
 # Créer la base de données
 mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS esport_social CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
-# Importer le schéma
-mysql -u root -p esport_social < ../database.sql
+# Importer le schéma (présent dans /API)
+mysql -u root -p esport_social < database.sql
 
 # (Optionnel) Ajouter des données de test
-mysql -u root -p esport_social < ../test_data.sql
+mysql -u root -p esport_social < test_data.sql
 ```
 
 ### 4. Lancer l'API
 
 ```bash
-# Méthode 1: Avec le script Python directement
-python main.py
+# Méthode 1: Lancer FastAPI directement
+python app/main.py 
 
-# Méthode 2: Avec uvicorn (plus d'options)
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+# Méthode 2: Avec uvicorn (plus recommandé)
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000 
 ```
 
-L'API sera accessible sur : **http://localhost:8000**
+L'API sera accessible sur : **[http://localhost:8000](http://localhost:8000)**
 
 ## 📚 Documentation
 
 ### Documentation Interactive
 
-- **Swagger UI** : http://localhost:8000/docs
-- **ReDoc** : http://localhost:8000/redoc
+* **Swagger UI** : [http://localhost:8000/docs](http://localhost:8000/docs)
+* **ReDoc** : [http://localhost:8000/redoc](http://localhost:8000/redoc)
 
 ### Endpoints Principaux
 
 #### 🔐 Authentification
 
-| Méthode | Endpoint | Description |
-|---------|----------|-------------|
-| POST | `/register` | Créer un nouveau compte |
-| POST | `/login` | Se connecter |
+| Méthode | Endpoint    | Description             |
+| ------- | ----------- | ----------------------- |
+| POST    | `/register` | Créer un nouveau compte |
+| POST    | `/login`    | Se connecter            |
 
 #### 👤 Profils
 
-| Méthode | Endpoint | Description | Auth |
-|---------|----------|-------------|------|
-| GET | `/profile` | Obtenir son profil | ✅ |
-| PUT | `/profile` | Mettre à jour son profil | ✅ |
+| Méthode | Endpoint   | Description              | Auth |
+| ------- | ---------- | ------------------------ | ---- |
+| GET     | `/profile` | Obtenir son profil       | ✅    |
+| PUT     | `/profile` | Mettre à jour son profil | ✅    |
 
 #### 🎮 Jeux
 
-| Méthode | Endpoint | Description | Auth |
-|---------|----------|-------------|------|
-| GET | `/games` | Liste tous les jeux | ❌ |
-| GET | `/user/games` | Mes jeux | ✅ |
-| POST | `/user/games` | Ajouter un jeu | ✅ |
-| DELETE | `/user/games/{id}` | Retirer un jeu | ✅ |
+| Méthode | Endpoint           | Description         | Auth |
+| ------- | ------------------ | ------------------- | ---- |
+| GET     | `/games`           | Liste tous les jeux | ❌    |
+| GET     | `/user/games`      | Mes jeux            | ✅    |
+| POST    | `/user/games`      | Ajouter un jeu      | ✅    |
+| DELETE  | `/user/games/{id}` | Retirer un jeu      | ✅    |
 
 #### 🤝 Matching
 
-| Méthode | Endpoint | Description | Auth |
-|---------|----------|-------------|------|
-| POST | `/matches` | Trouver des matchs | ✅ |
-| GET | `/matches` | Mes matchs | ✅ |
-| POST | `/matches/{id}/accept` | Accepter un match | ✅ |
-| POST | `/matches/{id}/reject` | Rejeter un match | ✅ |
+| Méthode | Endpoint               | Description        | Auth |
+| ------- | ---------------------- | ------------------ | ---- |
+| POST    | `/matches`             | Trouver des matchs | ✅    |
+| GET     | `/matches`             | Mes matchs         | ✅    |
+| POST    | `/matches/{id}/accept` | Accepter un match  | ✅    |
+| POST    | `/matches/{id}/reject` | Rejeter un match   | ✅    |
 
 #### 💬 Messages
 
-| Méthode | Endpoint | Description | Auth |
-|---------|----------|-------------|------|
-| GET | `/messages` | Conversations | ✅ |
-| GET | `/messages/{user_id}` | Messages avec un utilisateur | ✅ |
-| POST | `/messages` | Envoyer un message | ✅ |
+| Méthode | Endpoint              | Description                  | Auth |
+| ------- | --------------------- | ---------------------------- | ---- |
+| GET     | `/messages`           | Conversations                | ✅    |
+| GET     | `/messages/{user_id}` | Messages avec un utilisateur | ✅    |
+| POST    | `/messages`           | Envoyer un message           | ✅    |
 
 ## 🧪 Tests avec cURL
 
@@ -166,77 +167,120 @@ curl -X GET http://localhost:8000/profile \
 
 ```
 API/
-├── main.py              # Application FastAPI principale
-├── requirements.txt     # Dépendances Python
-├── .env                 # Variables d'environnement (à créer)
-└── README.md           # Ce fichier
+│   .env
+│   deploy_secure.sh
+│   generate_hash.py
+│   README.md
+│   requirements.txt
+│   run.py
+│   security_check.py
+│   database.sql
+│   test_data.sql
+│
+├── app
+│   │   config.py
+│   │   database.py
+│   │   main.py              # Point d'entrée réel
+│   │   __init__.py
+│   │
+│   ├── middleware
+│   │   └── activity.py
+│   │
+│   ├── models
+│   │   ├── game.py
+│   │   ├── match.py
+│   │   ├── message.py
+│   │   └── user.py
+│   │
+│   ├── routes
+│   │   ├── auth.py
+│   │   ├── games.py
+│   │   ├── matching.py
+│   │   ├── messages.py
+│   │   └── profile.py
+│   │
+│   ├── services
+│   │   ├── activity_monitor.py
+│   │   └── auth.py
+│   │
+│   └── schemas              # (À créer si pas encore présent)
+│       ├── user.py
+│       ├── game.py
+│       ├── match.py
+│       └── message.py
+│
+│
+├── tests
+│   └── test_api.py
+│
+└── venv                     # Environnement virtuel
 ```
 
 ### Modèles Pydantic
 
 L'API utilise Pydantic pour la validation des données :
 
-- `UserRegister` : Inscription
-- `UserLogin` : Connexion
-- `UserProfile` : Profil utilisateur
-- `UserGame` : Jeu d'un utilisateur
-- `Message` : Message entre utilisateurs
+* `UserRegister` : Inscription
+* `UserLogin` : Connexion
+* `UserProfile` : Profil utilisateur
+* `UserGame` : Jeu d'un utilisateur
+* `Message` : Message entre utilisateurs
 
-### Sécurité
+## 🛡️ Sécurité
 
-- Mots de passe hachés avec **bcrypt**
-- Tokens JWT avec expiration de 7 jours
-- Validation des données avec Pydantic
-- CORS configuré pour le frontend
+* Mots de passe hachés avec **bcrypt**
+* Tokens JWT avec expiration de 7 jours
+* Validation des données avec Pydantic
+* CORS configuré pour le frontend
 
 ## 🐛 Dépannage
 
-### Erreur de connexion MySQL
+### Erreur MySQL
 
 ```
 MySQLdb.OperationalError: (2003, "Can't connect to MySQL server")
 ```
 
-**Solution** :
-- Vérifier que MySQL est démarré
-- Vérifier les identifiants dans `.env`
-- Vérifier le port MySQL (3306 par défaut)
+**Solution :**
 
-### Erreur d'import
+* Vérifier que MySQL est démarré
+* Vérifier les identifiants `.env`
+* Vérifier le port (3306)
+
+### Module manquant
 
 ```
 ModuleNotFoundError: No module named 'fastapi'
 ```
 
-**Solution** :
+**Solution :**
+
 ```bash
 pip install -r requirements.txt
 ```
 
 ### Token invalide
 
-**Solution** :
-- Vérifier que `JWT_SECRET` est défini dans `.env`
-- S'assurer que le token est envoyé dans le header Authorization
-- Format : `Bearer YOUR_TOKEN`
+* Vérifier `JWT_SECRET`
+* Envoyer correctement le header :
+
+  ```
+  Authorization: Bearer TOKEN
+  ```
 
 ## 🚀 Production
 
-Pour la production :
+1. Modifier `JWT_SECRET`
+2. Utiliser gunicorn :
 
-1. **Changer le JWT_SECRET** dans `.env`
-2. Utiliser **gunicorn** avec uvicorn workers :
-   ```bash
-   gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker
-   ```
-3. Mettre derrière un **reverse proxy** (nginx)
-4. Activer **HTTPS**
-5. Limiter les **CORS origins**
+```bash
+gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker
+```
+
+3. Ajouter un reverse proxy (nginx)
+4. Activer HTTPS
+5. Limiter les CORS
 
 ## 📝 Licence
 
 Projet éducatif - E-Sport Social Platform
-
----
-
-**Note** : Pour le frontend React, voir `/frontend/README.md`
