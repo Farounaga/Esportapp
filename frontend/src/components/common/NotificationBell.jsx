@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { notificationsAPI } from '../../services';
-import { Avatar } from './Avatar';
+import Avatar from './Avatar';
 
 /**
  * Format relative time

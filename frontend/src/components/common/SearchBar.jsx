@@ -6,7 +6,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { searchAPI } from '../../services';
-import { Avatar } from './Avatar';
+import Avatar from './Avatar';
 
 const SearchBar = ({ className = '' }) => {
   const [query, setQuery] = useState('');
