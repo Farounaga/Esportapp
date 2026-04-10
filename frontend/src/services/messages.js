@@ -27,6 +27,14 @@ export const messagesAPI = {
    */
   sendMessage: (receiverId, content) =>
     apiClient.post('/messages', { receiver_id: receiverId, content }),
+
+  /**
+   * Supprime logiquement un message (soft-delete)
+   * Le message est conservé en base mais n'est plus affiché
+   * @param {number} messageId - ID du message à supprimer
+   * @returns {Promise} API response
+   */
+  deleteMessage: (messageId) => apiClient.delete(`/messages/${messageId}`),
 };
 
 export default messagesAPI;
