@@ -26,6 +26,14 @@ export const gamesAPI = {
   addUserGame: (gameData) => apiClient.post('/user/games', gameData),
 
   /**
+   * Update a game in user's profile
+   * @param {number} gameId - ID of the game to update
+   * @param {Object} gameData - Updated game data (skill_level, game_rank, hours_played, is_favorite)
+   * @returns {Promise} API response
+   */
+  updateUserGame: (gameId, gameData) => apiClient.put(`/user/games/${gameId}`, gameData),
+
+  /**
    * Remove a game from user's profile
    * @param {number} gameId - ID of the game to remove
    * @returns {Promise} API response

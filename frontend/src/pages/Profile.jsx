@@ -40,6 +40,11 @@ export default function Profile() {
     type: 'avatar' // 'avatar' or 'banner'
   });
 
+  // Game editor state
+  const [editingGame, setEditingGame] = useState(null);
+  const [gameEditForm, setGameEditForm] = useState({});
+  const [savingGame, setSavingGame] = useState(false);
+
   const skillLevels = ['beginner', 'intermediate', 'advanced', 'expert'];
   const lookingForOptions = ['teammates', 'mentor', 'casual_friends', 'competitive_team'];
 
@@ -134,6 +139,40 @@ export default function Profile() {
     setImageSelector({ isOpen: true, type });
   };
 
+  const openGameEditor = (game) => {
+    setEditingGame(game);
+    setGameEditForm({
+      game_id: game.id,
+      skill_level: game.skill_level || 'beginner',
+      game_rank: game.game_rank || game.rank || '',
+      hours_played: game.hours_played || 0,
+      is_favorite: game.is_favorite || false,
+    });
+  };
+
+  const handleGameEditChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setGameEditForm(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+  };
+
+  const handleSaveGame = async () => {
+    setSavingGame(true);
+    try {
+      await gamesAPI.updateUserGame(editingGame.id, gameEditForm);
+      await loadProfile();
+      setEditingGame(null);
+      showToast('Jeu mis à jour !', 'success');
+    } catch (error) {
+      console.error('Failed to update game:', error);
+      showToast(error.response?.data?.detail || 'Impossible de modifier le jeu', 'error');
+    } finally {
+      setSavingGame(false);
+    }
+  };
+
   const addGameToProfile = async (gameId) => {
     try {
       await gamesAPI.addUserGame({
@@ -203,6 +242,94 @@ export default function Profile() {
         type={imageSelector.type}
         currentImage={imageSelector.type === 'avatar' ? editForm.avatar_url : editForm.banner_url}
       />
+
+      {/* Game Edit Modal */}
+      {editingGame && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-6 border border-primary/20 shadow-lg w-full max-w-md">
+            <h3 className="text-xl font-bold mb-6 bg-gradient-to-r from-primary-light to-primary bg-clip-text text-transparent">
+              Modifier — {editingGame.name}
+            </h3>
+
+            <div className="space-y-4">
+              {/* Niveau */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Niveau</label>
+                <select
+                  name="skill_level"
+                  value={gameEditForm.skill_level}
+                  onChange={handleGameEditChange}
+                  className="w-full px-3 py-2 bg-gray-900/80 border border-primary/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-primary-light transition-all"
+                >
+                  {skillLevels.map(level => (
+                    <option key={level} value={level}>{SKILL_LEVELS[level].label}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Rang */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Rang <span className="text-gray-500">(optionnel)</span></label>
+                <input
+                  type="text"
+                  name="game_rank"
+                  value={gameEditForm.game_rank}
+                  onChange={handleGameEditChange}
+                  placeholder="ex : Gold III, Diamond, Global Elite"
+                  maxLength={100}
+                  className="w-full px-3 py-2 bg-gray-900/80 border border-primary/20 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-light transition-all"
+                />
+              </div>
+
+              {/* Heures jouées */}
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-2">Heures jouées</label>
+                <input
+                  type="number"
+                  name="hours_played"
+                  value={gameEditForm.hours_played}
+                  onChange={handleGameEditChange}
+                  min="0"
+                  max="100000"
+                  className="w-full px-3 py-2 bg-gray-900/80 border border-primary/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-primary-light transition-all"
+                />
+              </div>
+
+              {/* Jeu favori */}
+              <label className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg border border-primary/10 cursor-pointer hover:border-primary/30 transition-all">
+                <div>
+                  <p className="text-white font-medium">Jeu favori</p>
+                  <p className="text-sm text-gray-400">Mis en avant sur ton profil</p>
+                </div>
+                <input
+                  type="checkbox"
+                  name="is_favorite"
+                  checked={gameEditForm.is_favorite}
+                  onChange={handleGameEditChange}
+                  className="w-5 h-5 accent-red-600"
+                />
+              </label>
+            </div>
+
+            {/* Boutons */}
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={handleSaveGame}
+                disabled={savingGame}
+                className="flex-1 px-4 py-2 bg-gradient-to-br from-green-600 to-green-500 text-white rounded-lg font-medium hover:shadow-lg hover:shadow-green-500/30 transition-all disabled:opacity-50"
+              >
+                {savingGame ? 'Sauvegarde...' : 'Sauvegarder'}
+              </button>
+              <button
+                onClick={() => setEditingGame(null)}
+                className="flex-1 px-4 py-2 bg-gray-700/50 hover:bg-gray-600/50 border border-primary/20 text-white rounded-lg font-medium transition-all"
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="container mx-auto px-4 py-8">
         {/* Profile Header with Banner */}
@@ -662,7 +789,18 @@ export default function Profile() {
                       <div key={game.id} className="p-4 bg-gradient-to-br from-gray-800/50 to-gray-700/50 rounded-lg border border-primary/10 hover:border-primary-light/30 transition-all">
                         <div className="flex items-center justify-between mb-2">
                           <h3 className="font-semibold text-white">{game.name}</h3>
-                          {game.is_favorite && <span className="text-yellow-400">⭐</span>}
+                          <div className="flex items-center gap-2">
+                            {game.is_favorite && <span className="text-yellow-400">⭐</span>}
+                            <button
+                              onClick={() => openGameEditor(game)}
+                              className="text-gray-400 hover:text-primary-light transition-colors"
+                              title="Modifier ce jeu"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                              </svg>
+                            </button>
+                          </div>
                         </div>
                         <p className="text-sm text-gray-400">{game.category}</p>
                         <div className="mt-2 space-y-1">

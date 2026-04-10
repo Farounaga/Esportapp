@@ -18,6 +18,7 @@ def get_conversations(user_id: int = Depends(get_current_user_id)):
     Get all conversations for the current user.
 
     Returns a list of conversations with last message and unread count.
+    Only considers non-deleted messages (deleted_at IS NULL).
     """
     with DatabaseSession(dict_cursor=True) as db:
         db.execute(
@@ -29,15 +30,17 @@ def get_conversations(user_id: int = Depends(get_current_user_id)):
                 MAX(m.created_at) as last_message_time,
                 (
                     SELECT content FROM messages
-                    WHERE (sender_id = u.id AND receiver_id = %s)
-                       OR (sender_id = %s AND receiver_id = u.id)
+                    WHERE ((sender_id = u.id AND receiver_id = %s)
+                       OR (sender_id = %s AND receiver_id = u.id))
+                       AND deleted_at IS NULL
                     ORDER BY created_at DESC LIMIT 1
                 ) as last_message,
                 COUNT(CASE WHEN m.is_read = 0 AND m.receiver_id = %s THEN 1 END) as unread_count
             FROM users u
             JOIN user_profiles p ON u.id = p.user_id
-            JOIN messages m ON (m.sender_id = u.id AND m.receiver_id = %s)
-                            OR (m.sender_id = %s AND m.receiver_id = u.id)
+            JOIN messages m ON ((m.sender_id = u.id AND m.receiver_id = %s)
+                            OR (m.sender_id = %s AND m.receiver_id = u.id))
+                           AND m.deleted_at IS NULL
             WHERE u.id != %s
             GROUP BY u.id
             ORDER BY last_message_time DESC
@@ -52,6 +55,8 @@ def get_conversations(user_id: int = Depends(get_current_user_id)):
 def get_messages(other_user_id: int, user_id: int = Depends(get_current_user_id)):
     """
     Get messages between current user and another user.
+
+    Only returns non-deleted messages (deleted_at IS NULL).
 
     Args:
         other_user_id: The ID of the other user in the conversation
@@ -73,7 +78,7 @@ def get_messages(other_user_id: int, user_id: int = Depends(get_current_user_id)
         if not db.fetchone():
             raise HTTPException(status_code=403, detail="You can only message matched users")
 
-        # Get messages
+        # Get messages — exclut les messages supprimés logiquement
         db.execute(
             """
             SELECT
@@ -88,8 +93,9 @@ def get_messages(other_user_id: int, user_id: int = Depends(get_current_user_id)
             FROM messages m
             JOIN users u ON m.sender_id = u.id
             JOIN user_profiles p ON u.id = p.user_id
-            WHERE (m.sender_id = %s AND m.receiver_id = %s)
-               OR (m.sender_id = %s AND m.receiver_id = %s)
+            WHERE ((m.sender_id = %s AND m.receiver_id = %s)
+               OR (m.sender_id = %s AND m.receiver_id = %s))
+               AND m.deleted_at IS NULL
             ORDER BY m.created_at ASC
             """,
             (user_id, other_user_id, other_user_id, user_id),
@@ -97,11 +103,13 @@ def get_messages(other_user_id: int, user_id: int = Depends(get_current_user_id)
 
         messages = db.fetchall()
 
-        # Mark as read
+        # Mark as read — uniquement les messages non supprimés
         db.execute(
             """
             UPDATE messages SET is_read = TRUE
-            WHERE sender_id = %s AND receiver_id = %s AND is_read = FALSE
+            WHERE sender_id = %s AND receiver_id = %s
+                AND is_read = FALSE
+                AND deleted_at IS NULL
             """,
             (other_user_id, user_id),
         )
@@ -143,3 +151,47 @@ def send_message(message: Message, user_id: int = Depends(get_current_user_id)):
         )
 
         return {"success": True, "message": "Message sent"}
+
+
+@router.delete("/messages/{message_id}")
+def delete_message(message_id: int, user_id: int = Depends(get_current_user_id)):
+    """
+    Suppression logique d'un message (soft-delete).
+
+    Le message n'est pas réellement supprimé de la base de données —
+    sa colonne deleted_at est renseignée avec l'heure courante.
+    L'historique est ainsi préservé, mais le message ne s'affiche plus.
+
+    Seuls l'expéditeur ou le destinataire peuvent supprimer un message.
+    """
+    with DatabaseSession(dict_cursor=True) as db:
+        # Vérifier que le message existe et que l'utilisateur y a accès
+        db.execute(
+            """
+            SELECT id, sender_id, receiver_id, deleted_at
+            FROM messages
+            WHERE id = %s
+            """,
+            (message_id,),
+        )
+        message = db.fetchone()
+
+        if not message:
+            raise HTTPException(status_code=404, detail="Message not found")
+
+        if message["deleted_at"] is not None:
+            raise HTTPException(status_code=404, detail="Message not found")
+
+        if message["sender_id"] != user_id and message["receiver_id"] != user_id:
+            raise HTTPException(
+                status_code=403,
+                detail="You can only delete your own messages",
+            )
+
+        # Soft-delete : on horodate la suppression sans effacer la ligne
+        db.execute(
+            "UPDATE messages SET deleted_at = NOW() WHERE id = %s",
+            (message_id,),
+        )
+
+        return {"success": True, "message": "Message deleted"}
