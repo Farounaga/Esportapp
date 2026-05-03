@@ -1,0 +1,105 @@
+erDiagram
+    users {
+        INT id PK
+        VARCHAR email UK
+        VARCHAR username UK
+        VARCHAR password_hash
+        BOOLEAN email_verified
+        ENUM account_status
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+        TIMESTAMP last_activity_at
+    }
+
+    user_profiles {
+        INT id PK
+        INT user_id FK UK
+        VARCHAR region
+        DATE date_of_birth
+        VARCHAR avatar_url
+        VARCHAR banner_url
+        TEXT bio
+        VARCHAR timezone
+        VARCHAR discord_username
+        VARCHAR steam_id
+        VARCHAR twitch_username
+        VARCHAR riot_id
+        ENUM skill_level
+        ENUM looking_for
+        ENUM profile_visibility
+        BOOLEAN show_stats
+        BOOLEAN allow_friend_requests
+    }
+
+    games {
+        INT id PK
+        VARCHAR name
+        VARCHAR category
+        VARCHAR icon_url
+        VARCHAR api_id
+    }
+
+    user_games {
+        INT id PK
+        INT user_id FK
+        INT game_id FK
+        ENUM skill_level
+        VARCHAR game_rank
+        INT hours_played
+        BOOLEAN is_favorite
+    }
+
+    user_preferences {
+        INT id PK
+        INT user_id FK UK
+        ENUM preferred_game_mode
+        ENUM preferred_playtime
+    }
+
+    matches {
+        INT id PK
+        INT user1_id FK
+        INT user2_id FK
+        FLOAT match_score
+        ENUM status
+    }
+
+    messages {
+        INT id PK
+        INT sender_id FK
+        INT receiver_id FK
+        TEXT content
+        BOOLEAN is_read
+        DATETIME deleted_at
+    }
+
+    notifications {
+        INT id PK
+        INT user_id FK
+        INT from_user_id FK
+        VARCHAR type
+        VARCHAR title
+        TEXT message
+        JSON data
+        BOOLEAN is_read
+    }
+
+    user_activity_logs {
+        INT id PK
+        INT user_id FK
+        ENUM activity_type
+        VARCHAR ip_address
+        TEXT user_agent
+    }
+
+    users ||--o| user_profiles : user_id
+    users ||--o{ user_games : user_id
+    games ||--o{ user_games : game_id
+    users ||--o| user_preferences : user_id
+    users ||--o{ matches : user1_id
+    users ||--o{ matches : user2_id
+    users ||--o{ messages : sender_id
+    users ||--o{ messages : receiver_id
+    users ||--o{ notifications : user_id
+    users ||--o{ notifications : from_user_id
+    users ||--o{ user_activity_logs : user_id

@@ -1,0 +1,11 @@
+erDiagram
+    UTILISATEUR ||--o| PROFIL : possede
+    UTILISATEUR ||--o{ UTILISATEUR_JEU : declare
+    JEU ||--o{ UTILISATEUR_JEU : est_choisi
+    UTILISATEUR ||--o| PREFERENCE : configure
+    UTILISATEUR ||--o{ MATCH : joueur_1
+    UTILISATEUR ||--o{ MATCH : joueur_2
+    UTILISATEUR ||--o{ MESSAGE : envoie
+    UTILISATEUR ||--o{ MESSAGE : recoit
+    UTILISATEUR ||--o{ NOTIFICATION : recoit
+    UTILISATEUR ||--o{ ACTIVITE : genere
