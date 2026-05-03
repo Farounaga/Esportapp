@@ -5,8 +5,13 @@
 
 import axios from 'axios';
 
+const runtimeConfig =
+  typeof window !== 'undefined' && window.__APP_CONFIG__
+    ? window.__APP_CONFIG__
+    : {};
+
 // Base API URL
-export const API_BASE_URL = 'http://localhost:8000';
+export const API_BASE_URL = runtimeConfig.API_BASE_URL || 'http://localhost:8000';
 
 // Create axios instance with default config
 const apiClient = axios.create({

@@ -12,6 +12,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+def parse_csv_env(value: str, default: list) -> list:
+    """Parse comma-separated environment variables into a clean list."""
+    if not value:
+        return default
+
+    items = [item.strip() for item in value.split(",")]
+    parsed = [item for item in items if item]
+    return parsed or default
+
+
 class Settings:
     """Application settings loaded from environment variables."""
 
@@ -21,6 +31,7 @@ class Settings:
 
     # Database - Private attributes for sensitive data
     __DB_HOST: str = os.getenv("DB_HOST", "localhost")
+    __DB_PORT: int = int(os.getenv("DB_PORT", "3306"))
     __DB_USER: str = os.getenv("DB_USER", "root")
     __DB_PASS: str = os.getenv("DB_PASS", "")
     __DB_NAME: str = os.getenv("DB_NAME", "esport_social")
@@ -33,10 +44,10 @@ class Settings:
     # Ajouter activity monitoring durées ici
 
     # CORS
-    CORS_ORIGINS: list = [
-        "http://localhost:5173",
-        "http://localhost:3000",
-    ]
+    CORS_ORIGINS: list = parse_csv_env(
+        os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000"),
+        ["http://localhost:5173", "http://localhost:3000"],
+    )
 
     # API
     API_TITLE: str = "E-Sport Social Platform API"
@@ -53,6 +64,11 @@ class Settings:
     def db_user(self) -> str:
         """Get database user."""
         return self.__DB_USER
+
+    @property
+    def db_port(self) -> int:
+        """Get database port."""
+        return self.__DB_PORT
 
     @property
     def db_password(self) -> str:

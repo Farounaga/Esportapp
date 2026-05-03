@@ -1,0 +1,10 @@
+services:
+  frontend:
+    build:
+      context: ../../../frontend
+    image: esportapp-frontend:latest
+    restart: unless-stopped
+    environment:
+      API_BASE_URL: ${API_BASE_URL:-http://10.0.0.20:8000}
+    ports:
+      - "${FRONTEND_PORT:-80}:80"

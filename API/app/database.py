@@ -20,6 +20,7 @@ def get_db_connection():
     """
     return MySQLdb.connect(
         host=settings.db_host,
+        port=settings.db_port,
         user=settings.db_user,
         passwd=settings.db_password,
         db=settings.db_name,

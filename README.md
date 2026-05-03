@@ -149,6 +149,32 @@
 
 ---
 
+## 🐳 **Docker**
+
+Le projet peut maintenant etre deploie en 3 services separes:
+
+* `db` - MySQL
+* `api` - FastAPI
+* `frontend` - React servi par Nginx
+
+Lancement full stack:
+
+```bash
+docker compose up -d --build
+```
+
+Guide complet:
+
+* [Docker deployment](deploy/docker/README.md)
+
+Ports par defaut:
+
+* Frontend: [http://localhost:8081](http://localhost:8081)
+* API: [http://localhost:8000](http://localhost:8000)
+* MySQL: `localhost:3307` cote hote, `db:3306` entre conteneurs
+
+---
+
 ## 🔧 **Configuration**
 
 ### **Variables d'environnement**
